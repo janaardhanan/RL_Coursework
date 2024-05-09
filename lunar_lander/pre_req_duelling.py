@@ -54,7 +54,7 @@ def get_epsilon(it, max_epsilon=1.0, min_epsilon=0.01, decay=500):
 def choose_action(state, policy_net, epsilon):
     if random.random() > epsilon:
         with torch.no_grad():
-            state = torch.tensor(np.array(state), dtype=torch.float32, device=device)
+            state = torch.tensor([state], dtype=torch.float32, device=device)
             q_values = policy_net(state)
             action = q_values.max(1)[1].item()
     else:
