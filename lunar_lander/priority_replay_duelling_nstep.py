@@ -155,8 +155,9 @@ for epoch in range(epochs):
         state = next_state
         total_reward += reward
         loss= optimize_model(memory, policy_net, target_net, optimizer, batch_size, gamma, beta)
-        total_loss += loss
-        count_steps += 1
+        if loss!=None:
+            total_loss += loss
+            count_steps += 1
         
         if done or truncated:
             break
