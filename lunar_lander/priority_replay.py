@@ -1,5 +1,6 @@
 from pre_req import *
 
+csv_filename= "PER_lunar.csv"
 
 
 # Prioritized Experience Replay Sum Tree
@@ -115,11 +116,8 @@ def optimize_model(memory, policy_net, target_net, optimizer, batch_size=64, gam
     for idx, error in zip(indices, errors.detach().cpu().numpy()):
         memory.update(idx, error)
 
+    return loss.item()
 
-policy_net.load_state_dict(torch.load("lunar_lander/models/lunar_lander_999.pth"))
-policy_net.eval()
-policy_net.to(device=device)
-policy_net.train()
 optimizer = optim.Adam(policy_net.parameters())
 memory = PrioritizedReplayBuffer(10000)
 epochs = 1000
@@ -131,26 +129,37 @@ gamma = 0.99
 for epoch in range(epochs):
     state, _ = env.reset()
     total_reward = 0
+    total_loss = 0  # Initialize total loss for the episode
+    count_steps = 0  # Count the number of optimization steps
+
     epsilon = get_epsilon(epoch)
     beta = min(1.0, 0.4 + epoch * (1.0 - 0.4) / epochs)
 
     while True:
-        action = choose_action(state, policy_net, epsilon=0.01)
+        action = choose_action(state, policy_net, epsilon)
         next_state, reward, done, truncated, info = env.step(action)
         td_error = reward - gamma * (not (done or truncated))
         memory.add(td_error, (list(state), action, reward, list(next_state), int(done or truncated)))
 
         state = next_state
         total_reward += reward
-        optimize_model(memory, policy_net, target_net, optimizer, batch_size, gamma, beta)
+        loss = optimize_model(memory, policy_net, target_net, optimizer, batch_size, gamma, beta)
+        total_loss += loss
+        count_steps += 1  # Increment the step count whenever model is optimized
+        
         if done or truncated:
             break
 
     if epoch % sync_freq == 0:
         target_net.load_state_dict(policy_net.state_dict())
+    if epoch %100 ==0:
+        torch.save(policy_net.state_dict(), f'lunar_lander/models/PER_lunar_{epoch}.pth')
 
-    torch.save(policy_net.state_dict(), f'lunar_lander/models/lunar_lander_{epoch+1000}.pth')
-    print(f"Epoch {epoch+1000}, Total reward: {total_reward}, Epsilon: {0.01}")
+    torch.save(policy_net.state_dict(), f'lunar_lander/models/PER_lunar_final.pth')
+
+    average_loss = total_loss / count_steps if count_steps != 0 else 0
+    print(f"Epoch {epoch}, Total reward: {total_reward}, Epsilon: {epsilon}, average loss: {average_loss}")
+    save_to_csv([epoch, total_reward, epsilon, average_loss], csv_filename)
 
 env.close()
 

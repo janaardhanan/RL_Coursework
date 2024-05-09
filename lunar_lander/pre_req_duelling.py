@@ -6,11 +6,26 @@ import numpy as np
 from collections import deque, namedtuple
 import random
 import time
+import csv
 
 # Check if a GPU is available and assign a device
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 print(f"Using device: {device}")
 
+
+def save_to_csv(values, filename="training.csv"):
+    with open(filename, 'a') as f_object:
+ 
+        # Pass this file object to csv.writer()
+        # and get a writer object
+        writer_object = csv.writer(f_object)
+ 
+        # Pass the list as an argument into
+        # the writerow()
+        writer_object.writerow(values)
+ 
+        # Close the file object
+        f_object.close()
 
 # Define the DQN architecture
 class DQN(nn.Module):
