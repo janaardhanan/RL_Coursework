@@ -45,16 +45,18 @@ class DQN(nn.Module):
 def get_epsilon(it, max_epsilon=1.0, min_epsilon=0.01, decay=500):
     return max(min_epsilon, max_epsilon - (max_epsilon - min_epsilon) * it / decay)
 
-# Function to choose an action based on the epsilon-greedy policy
 def choose_action(state, policy_net, epsilon):
+    flag=0
     if random.random() > epsilon:
         with torch.no_grad():
             state = torch.tensor([state], dtype=torch.float32, device=device)
             q_values = policy_net(state)
             action = q_values.max(1)[1].item()
+            flag=1
     else:
         action = env.action_space.sample()
-    return action
+
+    return action,flag
 
 
 # Initialize environment and parameters

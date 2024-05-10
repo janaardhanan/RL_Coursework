@@ -8,10 +8,15 @@ import random
 import time
 import csv
 
+np.random.seed(100)
+torch.manual_seed(100)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(100)
 # Check if a GPU is available and assign a device
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
+# Check if a GPU is available and assign a device
 
 def save_to_csv(values, filename="training.csv"):
     with open(filename, 'a') as f_object:
@@ -47,7 +52,8 @@ class DQN(nn.Module):
         q_values = value + (advantage - advantage.mean(dim=1, keepdim=True))
         
         return q_values
-"""class DQN(nn.Module):
+"""
+class DQN(nn.Module):
     def __init__(self, input_shape, action_space):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(np.prod(input_shape), 256)
@@ -58,8 +64,8 @@ class DQN(nn.Module):
         x = x.view(x.size(0), -1)  # Flatten the input
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
-        return self.fc3(x)"""
-    
+        return self.fc3(x)
+    """
 
 # Function to get epsilon value based on decay
 def get_epsilon(it, max_epsilon=1.0, min_epsilon=0.01, decay=500):

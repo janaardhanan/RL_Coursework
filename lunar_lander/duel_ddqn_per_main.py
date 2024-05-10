@@ -1,4 +1,4 @@
-from pre_req import *
+from duel_ddqn_per_fns import *
 
 csv_filename= "duelling_double_PER_lunar.csv"
 
@@ -156,9 +156,9 @@ for epoch in range(epochs):
     if epoch % sync_freq == 0:
         target_net.load_state_dict(policy_net.state_dict())
     if epoch %100 ==0:
-        torch.save(policy_net.state_dict(), f'models/duelling_double_PER_lunar_{epoch}.pth')
+        torch.save(policy_net.state_dict(), f'lunar_lander/models/duelling_double_PER_lunar_{epoch}.pth')
 
-    torch.save(policy_net.state_dict(), f'models/duelling_double_PER_lunar_final.pth')
+    torch.save(policy_net.state_dict(), f'lunar_lander/models/duelling_double_PER_lunar_final.pth')
 
     average_loss = total_loss / count_steps if count_steps != 0 else 0
     print(f"Epoch {epoch}, Total reward: {total_reward}, Epsilon: {epsilon}, average loss: {average_loss}")
