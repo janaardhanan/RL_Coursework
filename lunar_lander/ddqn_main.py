@@ -1,6 +1,6 @@
 # Cart_pole program with gym
 # pip install gym torch numpy
-from pre_req import *
+from ddqn_fns import *
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
