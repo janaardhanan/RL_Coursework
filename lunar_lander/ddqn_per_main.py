@@ -1,4 +1,4 @@
-from pre_req import *
+from ddqn_per_fns import *
 
 csv_filename= "double_PER_lunar.csv"
 
