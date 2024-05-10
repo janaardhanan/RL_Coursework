@@ -70,3 +70,19 @@ target_net = DQN(state_dim, action_dim).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 
+dummy_input = torch.randn(1, state_dim, device=device)
+
+# Forward pass the dummy input through the policy network to produce an output
+policy_output = policy_net(dummy_input)
+
+# Forward pass the dummy input through the target network to produce an output
+target_output = target_net(dummy_input)
+
+# Combine the outputs of both networks into one graph
+combined_output = torch.cat((policy_output, target_output), dim=0)
+
+# Compute the computational graph
+dot = make_dot(combined_output, params=dict(policy_net.named_parameters()))
+
+# Render and save the combined graph as a PNG file
+dot.render('ddqn_dqn_combined_graph', format='png', quiet=True)
